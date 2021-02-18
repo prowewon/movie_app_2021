@@ -1,25 +1,48 @@
-import logo from './logo.svg';
-import './App.css';
+// function component를 사용할 때는 없어도 됐는데 class component는 필요하다.
+import React from "react";
+import axios from "axios";
+import Movie from "./Movie";
+import "./App.css";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends React.Component {
+  state = {
+    isLoading: true,
+    muvies: []
+  }
+
+  getMovides = async() => {
+    const {data: {data: {movies}}} = await axios.get("https://yts-proxy.nomadcoders1.now.sh/list_movies.json?sort_by=rating");
+    this.setState({movies, isLoading:false})
+  }
+
+  componentDidMount() {
+    this.getMovides();
+  }
+
+  render() {
+    const {isLoading, movies} = this.state;
+    return (
+      <section className="cotainer">
+        {isLoading?
+        (<div className="loader"><span className="loader_text">Loading...</span></div>
+        ):(
+        <div className="movies">
+          {movies.map(movie => (
+          <Movie 
+          key={movie.id} 
+          id={movie.id} 
+          year={movie.year} 
+          title={movie.title} 
+          summary={movie.summary} 
+          poster={movie.medium_cover_image} 
+          genres={movie.genres}/>
+        ))}
+        </div>
+        )}
+      </section>
+    );
+  }
+
 }
 
 export default App;
